@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: m9xuzy0gyChxc3ix5yBgNh7xZGEn/tu+72jGIUoe2SE/CYRuNIqU1YynFtm/uMDSjMpIQ6tdJgLZVCSoYXWWFPom9NBtV03wmPgyEEXMZ/1B17+Oo7xvoPts/6zc6i9nZBHtwaNdGL0Ruo/UWu9DXRRWJuOQOGbq/WitlC0XW92bsuRsfFRcchMjq87Be+ZcRYZ0CuTNa74wQNG6jSsuxtW0vrrgQjL2KmrTf+fgMALuo8sy7afcC+fqO8q7fa6Bfgjj/y96GGnxXLmfcvPf/89pAFyKEJt8VWId3hkb24lMbntPdqFoyv2tCtMU7P38yzFOWzx9JMTYgbbf9Y7dsHr+jpF7ayMTBeyC3vQkbMPupA4wA8yBc3alljY/eg0T3LYMFZJ84uHf6gOFa8d00YID1rNpq3xvAcS9pRzLWEeSP9RQPopXbVwhju1F5bsxonTgd/m3eJI+wIx/pUTsAjnt/XmAB/syX05KNH8enOFHShOWl4IfBI+LrtqXvOQ2TIQRxymi2ZwJ0dWkJcMv5K82hxbch1D6+TAaoUaFQ5I6kTSP4FwRtYtfg1w4l/afYm7HAWLG63EodRilaENI7CT2EjHiqIKqP2/DN0XxEhXgI82DanlOYiv5XoAp2y3VFbM5Rmt/jfmP622s9yBnBxDAxxVcvbzxg23vMS8WWxw=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Memoirs-of-Jacques-Casanova-de-Seingalt-1725-1798.-Volume-08--Convent-Affairs_2958
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
